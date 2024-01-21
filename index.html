@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - explode-geometry-text-threejs</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<script type="x-shader/x-vertex" id="vertexshader">
+
+  uniform float time;
+
+  attribute vec3 customColor;
+  attribute vec3 displacement;
+
+  varying vec3 vNormal;
+  varying vec3 vColor;
+
+  float quadraticEaseInOut ( float k ) {
+
+    if ( ( k *= 2.0 ) < 1.0 ) return 0.5 * k * k;
+    return - 0.5 * ( --k * ( k - 2.0 ) - 1.0 );
+
+  }
+
+  void main() {
+
+    vNormal = normal;
+    vColor = customColor;
+
+    float t = abs(time * 2.0 - 1.0);
+    //vec3 newPosition = position + time * displacement;
+    // vec3 newPosition = quadraticEaseInOut(t) * (displacement - position) + position;
+    vec3 newPosition = position + normal * time * displacement;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+
+  }
+
+</script>
+<script type="x-shader/x-fragment" id="fragmentshader">
+
+varying vec3 vNormal;
+varying vec3 vColor;
+
+void main() {
+
+  const float ambient = 0.005;
+
+  vec3 light = vec3( 1.0 );
+  light = normalize( light );
+
+  float directional = max( dot( vNormal, light ), 0.0 );
+
+  gl_FragColor = vec4( ( directional + ambient ) * vColor, 1.0 );
+  gl_FragColor.xyz = sqrt( gl_FragColor.xyz );
+
+}
+</script>
+<!-- partial -->
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/85/three.min.js'></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js'></script><script  src="./script.js"></script>
+
+</body>
+</html>
